@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Produtos - SCS Data</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --mk-color: #b36b6b; }
+        body { background-color: #e9e9e9; }
+        .header-banner { background: black; color: white; padding: 20px; text-align: center; border-bottom: 5px solid var(--mk-color); }
+        .container-edit { background: white; margin-top: 30px; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .btn-editar { background-color: #ffc107; color: #212529; border: none; padding: 5px 15px; border-radius: 8px; font-weight: bold; }
+        .btn-voltar { color: var(--mk-color); text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header-banner"><h2>MARY KAY <span style="font-weight: 300; font-size: 0.8em;">.jtg</span></h2></div>
+    <div class="container">
+        <div class="container-edit">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4>Selecione o produto para editar</h4>
+                <a href="/estoque" class="btn-voltar">← Voltar ao Menu</a>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Cód MK</th>
+                        <th>Nome</th>
+                        <th>Preço Atual</th>
+                        <th class="text-center">Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in produtos %}
+                    <tr>
+                        <td>{{ p.codigo_mk }}</td>
+                        <td>{{ p.nome }}</td>
+                        <td>R$ {{ "%.2f"|format(p.preco_venda_sugerido) }}</td>
+                        <td class="text-center">
+                            <a href="{{ url_for('formulario_editar', id=p.id_produto) }}" class="btn-editar text-decoration-none">Editar</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Vendas - SCS Data</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --mk-color: #b36b6b; }
+        body { background-color: #e9e9e9; }
+        .header-banner { background: black; color: white; padding: 20px; text-align: center; border-bottom: 5px solid var(--mk-color); }
+        .container-vendas { background: white; margin-top: 30px; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .badge-pago { background-color: #28a745; }
+        .badge-pendente { background-color: #ffc107; color: #212529; }
+        .btn-nova-venda { background-color: var(--mk-color); color: white; border-radius: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header-banner"><h2>MARY KAY <span style="font-weight: 300; font-size: 0.8em;">.jtg</span></h2></div>
+    <div class="container">
+        <div class="container-vendas">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4>Registro de Vendas</h4>
+                <div>
+                    <a href="/nova_venda" class="btn btn-nova-venda shadow-sm">+ Registrar Venda</a>
+                    <a href="/estoque" class="ms-3 text-muted text-decoration-none">← Menu</a>
+                </div>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Produto</th> <th>Qtd</th>     <th>Cliente</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for v in vendas %}
+                    <tr {% if v.status == 'Pendente' %} style="background-color: #fffdf5;" {% endif %}>
+                        <td>#{{ v.id_venda }}</td>
+                        <td>{{ v.produto.nome }}</td> <td>{{ v.quantidade_vendida }}</td>
+                        <td>{{ v.nome_cliente_venda }}</td>
+                        <td>R$ {{ "%.2f"|format(v.valor_final) }}</td>
+                        <td>
+                            {% if v.status == 'Pendente' %}
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-warning text-dark me-2">Pendente</span>
+                                    <form action="{{ url_for('pagar_venda', id=v.id_venda) }}" method="POST">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" style="font-size: 0.7rem;">Baixar Pagamento</button>
+                                    </form>
+                                </div>
+                            {% else %}
+                                <span class="badge bg-success">Pago</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

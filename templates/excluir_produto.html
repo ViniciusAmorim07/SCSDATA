@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excluir Produtos - SCS Data</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --mk-color: #b36b6b; }
+        body { background-color: #e9e9e9; }
+        tr:hover {
+        background-color: #fff5f5; 
+        }
+        .header-banner { 
+            background: black; color: white; padding: 20px; 
+            text-align: center; border-bottom: 5px solid var(--mk-color);
+        }
+        .container-excluir {
+            background: white; margin-top: 30px; padding: 30px;
+            border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            
+        }
+        .btn-excluir {
+            background-color: #dc3545; color: white; border: none;
+            padding: 5px 15px; border-radius: 8px; transition: 0.3s;
+        }
+        .btn-excluir:hover { background-color: #a71d2a; }
+        .btn-voltar { color: var(--mk-color); text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header-banner">
+        <h2>MARY KAY <span style="font-weight: 300; font-size: 0.8em;">.jtg</span></h2>
+    </div>
+
+    <div class="container">
+        <div class="container-excluir">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4>Gerenciar Estoque - Excluir Itens</h4>
+                <a href="/estoque" class="btn-voltar">← Voltar ao Menu</a>
+            </div>
+
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Cód MK</th>
+                        <th>Nome do Produto</th>
+                        <th>Qtd</th>
+                        <th class="text-center">Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in produtos %}
+                    <tr>
+                        <td>{{ p.codigo_mk }}</td>
+                        <td>{{ p.nome }}</td>
+                        <td>{{ p.estoque_minimo }}</td>
+                        <td class="text-center">
+                            <form action="{{ url_for('deletar_produto', id=p.id_produto) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este produto?');">
+                                <button type="submit" class="btn-excluir">Excluir</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% if not produtos %}
+            <p class="text-center text-muted">Nenhum produto cadastrado para excluir.</p>
+            {% endif %}
+        </div>
+    </div>
+
+</body>
+</html>

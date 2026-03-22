@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCS Data - Estoque</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --mk-color: #b36b6b; }
+        body { background-color: #f4f4f4; }
+        .header-banner { 
+            background: black; color: white; padding: 30px; 
+            text-align: center; border-bottom: 5px solid var(--mk-color);
+        }
+        .btn-mk { background-color: var(--mk-color); color: white; border: none; margin: 2px; }
+        .btn-mk:hover { background-color: #8c5252; color: white; }
+        .product-card { border: none; border-radius: 10px; transition: 0.3s; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .img-placeholder { 
+            height: 150px; background-color: #e9ecef; 
+            display: flex; align-items: center; justify-content: center; border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-banner">
+        <h1>MARY KAY <span style="font-weight: 300; font-size: 0.8em;">.jtg</span></h1>
+        <p>SCS DATA</p>
+    </div>
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center bg-white p-3 rounded shadow-sm mb-4">
+            <h4 class="m-0">Bem-vindo(a)!</h4>
+            <div>
+                <button class="btn btn-outline-secondary btn-sm">Meu Perfil</button>
+                <a href="/login" class="btn btn-mk btn-sm">Sair</a>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <h5>Estoque</h5>
+            <div class="d-flex flex-wrap">
+                <button class="btn btn-mk btn-sm">Menu</button>
+                <a href="/produtos" class="btn btn-mk btn-sm">Produtos Disponíveis</a>
+                <a href="/vendas" class="btn btn-mk btn-sm">📋 Ver Vendas</a> <a href="/nova_venda" class="btn btn-mk btn-sm">Cadastrar Nova Venda</a>
+                <a href="/cadastrar_produto" class="btn btn-mk btn-sm">Cadastrar Novo Produto</a>
+                <a href="/editar_produto" class="btn btn-mk btn-sm">Editar produto</a>
+                <a href="/excluir_produto" class="btn btn-mk btn-sm">Excluir Produto</a>
+            </div>
+        </div>
+
+        <div class="row">
+            {% for i in range(8) %}
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card product-card p-3 shadow-sm">
+                    <div class="img-placeholder text-muted">Imagem do Produto</div>
+                    <div class="card-body p-2">
+                        <h6 class="card-title mb-1">Produto Exemplo {{ i+1 }}</h6>
+                        <p class="text-muted small">Qtd: 10 | R$ 59,90</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+</html>
