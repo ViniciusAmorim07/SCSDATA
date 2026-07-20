@@ -68,7 +68,9 @@
                                 <select class="form-select" name="id_produto[]" required>
                                     <option value="" selected disabled>Escolha o produto que chegou...</option>
                                     {% for produto in produtos %}
-                                        <option value="{{ produto.id_produto if produto.id_produto else produto.id }}">{{ produto.codigo_mk }} - {{ produto.nome }}</option>
+                                        <option value="{{ produto.id_produto if produto.id_produto else produto.id }}">
+                                                {{ produto.codigo_mk }} - {{ produto.nome }} {% if produto.cor %} ({{ produto.cor }}) {% endif %}
+                                        </option>
                                     {% endfor %}
                                 </select>
                             </div>
