@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCS DATA - Compras</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Ajuste simples para o layout preencher a tela toda */
+        body, html {
+            height: 100%;
+            margin: 0;
+            background-color: #f8f9fa; /* Fundo light do Bootstrap */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid h-100">
+    <div class="row h-100">
+        
+        <div class="col-md-2 bg-dark min-vh-100 text-white p-3">
+            <h4 class="text-center mb-4 mt-2">SCS DATA</h4>
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item"><a href="/dashboard" class="nav-link text-white">Dashboard</a></li>
+                <li><a href="/estoque" class="nav-link text-white">Estoque</a></li>
+                <li><a href="/vendas" class="nav-link text-white">Vendas</a></li>
+                <li><a href="/compras" class="nav-link text-white bg-secondary">Compras</a></li>
+            </ul>
+        </div>
+
+        <div class="col-md-10 p-5">
+            
+            <div class="mb-4">
+                <h2 class="text-dark border-bottom pb-2">Registrar Nova Compra (Estoque)</h2>
+            </div>
+
+            <div class="card shadow-sm border-0 p-4">
+                <form action="/cadastrar_compra" method="POST">
+                    
+                    <h5 class="mb-4 text-primary">Dados da Nota / Pedido</h5>
+                    <div class="row mb-3 g-3">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Data da Compra</label>
+                            <input type="date" class="form-control" name="data_compra" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Total Gasto (R$)</label>
+                            <input type="number" step="0.01" class="form-control" name="total_gasto" placeholder="0.00" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Desconto (%)</label>
+                            <input type="number" class="form-control" name="desconto" placeholder="0">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Frete (R$)</label>
+                            <input type="number" step="0.01" class="form-control" name="frete" placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <hr class="my-4 text-muted">
+
+                    <h5 class="mb-4 text-primary">Abastecer Produtos</h5>
+                    <div id="lista-produtos">
+                        <div class="row mb-3 g-3 align-items-end linha-produto">
+                            <div class="col-md-8">
+                                <label class="form-label fw-bold">Selecione o Produto</label>
+                                <select class="form-select" name="id_produto[]" required>
+                                    <option value="" selected disabled>Escolha o produto que chegou...</option>
+                                    {% for produto in produtos %}
+                                        <option value="{{ produto.id_produto if produto.id_produto else produto.id }}">{{ produto.codigo_mk }} - {{ produto.nome }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">Quantidade</label>
+                                <input type="number" class="form-control" name="quantidade[]" min="1" required>
+                            </div>
+                            <div class="col-md-1 text-end">
+                                <button type="button" class="btn btn-outline-danger w-100 btn-remover" style="display: none;" onclick="removerLinha(this)">X</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <button type="button" class="btn btn-sm btn-outline-primary fw-bold" onclick="adicionarLinha()">+ Adicionar outro produto</button>
+                    </div>
+
+                    <div class="text-end mt-4">
+                        <button type="submit" class="btn btn-success px-5 py-2 fw-bold">Dar Entrada no Estoque</button>
+                    </div>
+
+                    <script>
+                        function adicionarLinha() {
+                            const container = document.getElementById('lista-produtos');
+                            const primeiraLinha = document.querySelector('.linha-produto');
+                            
+                            // Clona a estrutura do HTML da primeira linha
+                            const novaLinha = primeiraLinha.cloneNode(true);
+                            
+                            // Limpa o valor da quantidade que foi copiada
+                            novaLinha.querySelector('input[type="number"]').value = '';
+                            
+                            // Mostra o botão de 'X' (remover) para as linhas clonadas
+                            novaLinha.querySelector('.btn-remover').style.display = 'block';
+                            
+                            // Adiciona a nova linha na tela
+                            container.appendChild(novaLinha);
+                        }
+
+                        function removerLinha(botao) {
+                            // Remove a linha (o elemento pai do pai do botão)
+                            botao.closest('.linha-produto').remove();
+                        }
+                    </script>
+
+                </form>
+            </div>
+        </div>
+    </div>          
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

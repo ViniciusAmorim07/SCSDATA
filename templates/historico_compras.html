@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCS DATA - Histórico de Compras</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body, html { height: 100%; margin: 0; background-color: #f8f9fa; }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid h-100">
+    <div class="row h-100">
+        
+        <div class="col-md-2 bg-dark min-vh-100 text-white p-3">
+            <h4 class="text-center mb-4 mt-2">SCS DATA</h4>
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item"><a href="/dashboard" class="nav-link text-white">Dashboard</a></li>
+                <li><a href="/estoque" class="nav-link text-white">Estoque</a></li>
+                <li><a href="/vendas" class="nav-link text-white">Vendas</a></li>
+                <li><a href="/compras" class="nav-link text-white">Compras</a></li>
+                <li><a href="/historico_compras" class="nav-link text-white bg-secondary mt-3">Histórico</a></li>
+            </ul>
+        </div>
+
+        <div class="col-md-10 p-5">
+            
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-4">
+                <h2 class="text-dark">Histórico de Movimentações (Compras)</h2>
+                <a href="/compras" class="btn btn-primary">Nova Compra</a>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0 align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3">Código da Nota</th>
+                                    <th scope="col" class="py-3">Data do Registro</th>
+                                    <th scope="col" class="py-3 text-end">Frete (R$)</th>
+                                    <th scope="col" class="py-3 text-end">Desconto (%)</th>
+                                    <th scope="col" class="px-4 py-3 text-end">Total Gasto (R$)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for compra in compras %}
+                                <tr>
+                                    <td class="px-4 fw-bold text-secondary">#{{ "%04d"|format(compra.id_compra) }}</td>
+                                    <td>{{ compra.data_compra.strftime('%d/%m/%Y às %H:%M') }}</td>
+                                    <td class="text-end text-muted">{{ "%.2f"|format(compra.frete) if compra.frete else "0.00" }}</td>
+                                    <td class="text-end text-muted">{{ "%.1f"|format(compra.desconto) if compra.desconto else "0.0" }}%</td>
+                                    <td class="px-4 text-end fw-bold text-danger">R$ {{ "%.2f"|format(compra.total_gasto) }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        Nenhuma compra registrada no sistema ainda.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div> </div>
+</div>
+
+</body>
+</html>

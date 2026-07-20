@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCS DATA - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            background-color: #f8f9fa;
+        }
+        .card-financeiro {
+            border: none;
+            border-radius: 10px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid h-100">
+    <div class="row h-100">
+        
+        <div class="col-md-2 bg-dark min-vh-100 text-white p-3">
+            <h4 class="text-center mb-4 mt-2">SCS DATA</h4>
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item"><a href="/dashboard" class="nav-link text-white bg-secondary">Dashboard</a></li>
+                <li><a href="/estoque" class="nav-link text-white">Estoque</a></li>
+                <li><a href="/vendas" class="nav-link text-white">Vendas</a></li>
+                <li><a href="/compras" class="nav-link text-white">Compras</a></li>
+            </ul>
+        </div>
+
+        <div class="col-md-10 p-5">
+            
+            <div class="mb-4">
+                <h2 class="text-dark border-bottom pb-2">Painel de Resultados</h2>
+            </div>
+
+            <div class="row mb-5 g-3">
+                <div class="col-md-4">
+                    <div class="card card-financeiro bg-primary p-4 shadow-sm">
+                        <small class="text-white-50 fw-bold text-uppercase">Total de Vendas</small>
+                        <h2 class="mt-2 fw-bold">R$ {{ "%.2f"|format(total_vendas) }}</h2>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-financeiro bg-danger p-4 shadow-sm">
+                        <small class="text-white-50 fw-bold text-uppercase">Total de Compras</small>
+                        <h2 class="mt-2 fw-bold">R$ {{ "%.2f"|format(total_compras) }}</h2>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-financeiro {% if lucro >= 0 %}bg-success{% else %}bg-warning{% endif %} p-4 shadow-sm">
+                        <small class="text-white-50 fw-bold text-uppercase">Lucro Líquido</small>
+                        <h2 class="mt-2 fw-bold">R$ {{ "%.2f"|format(lucro) }}</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 p-4">
+                <h5 class="text-secondary mb-4 text-center">Comparativo Financeiro Atual</h5>
+                <div style="position: relative; height:300px; width:100%">
+                    <canvas id="graficoLucro"></canvas>
+                </div>
+            </div>
+
+        </div> </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // 1. O truque das aspas: O editor de texto vê apenas uma String de texto, 
+    // mas o Flask vai injetar o número real aqui dentro antes da tela carregar.
+    const valorVendas = Number("{{ total_vendas }}");
+    const valorCompras = Number("{{ total_compras }}");
+    const valorLucro = Number("{{ lucro }}");
+
+    // 2. Captura o elemento do HTML
+    const ctx = document.getElementById('graficoLucro').getContext('2d');
+    
+    // 3. Renderiza o gráfico
+    const graficoLucro = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Vendas (Faturamento)', 'Compras (Investimento)', 'Lucro Real'],
+            datasets: [{
+                label: 'Valores em R$',
+                // Agora passamos as variáveis limpas para o gráfico
+                data: [valorVendas, valorCompras, valorLucro],
+                backgroundColor: [
+                    'rgba(13, 110, 253, 0.7)',
+                    'rgba(220, 53, 69, 0.7)',
+                    'rgba(25, 135, 84, 0.7)'
+                ],
+                borderColor: [
+                    'rgb(13, 110, 253)',
+                    'rgb(220, 53, 69)',
+                    'rgb(25, 135, 84)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
