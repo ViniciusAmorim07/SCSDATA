@@ -70,6 +70,7 @@ class Produto(db.Model):
     ativo = db.Column(db.Boolean, default=True)
     url_foto = db.Column(db.String(255), default='default_produto.png')
     tipo = db.Column(db.String(50), default='Geral')
+    cor = db.Column(db.String(30))
 
 class Venda(db.Model):
     __tablename__ = 'venda'
