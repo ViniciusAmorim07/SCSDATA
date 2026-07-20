@@ -94,7 +94,10 @@ class Compra(db.Model):
     frete = db.Column(db.Integer)
     id_usuario = db.Column(db.Integer)    
 
-    
+with app.app_context():
+    db.create_all()
+
+
 @app.route('/')
 def index():
     return redirect(url_for('login'))
@@ -389,11 +392,11 @@ def dashboard():
                            total_compras=total_compras,
                            lucro=lucro)
 
+with app.app_context():
+    print("Sincronizando modelos com o banco scsdata...")
+    db.create_all()
+    print("Todas as tabelas do modelo foram criadas com sucesso!")
+
 if __name__ == '__main__':
-    with app.app_context():
-        print("Sincronizando modelos com o banco scsdata...")
-        db.create_all()
-        print("Todas as tabelas do modelo foram criadas com sucesso!")
-    
     app.run(debug=True)
 
