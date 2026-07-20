@@ -75,8 +75,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // 1. O truque das aspas: O editor de texto vê apenas uma String de texto, 
-    // mas o Flask vai injetar o número real aqui dentro antes da tela carregar.
     const valorVendas = Number("{{ total_vendas }}");
     const valorCompras = Number("{{ total_compras }}");
     const valorLucro = Number("{{ lucro }}");

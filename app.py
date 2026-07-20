@@ -5,14 +5,14 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
+import os
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = 'SCsDaTa'
-
-# Configuração de conexão (ajustada para seu banco e senha)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@127.0.0.1:5432/scsdata'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+    'DATABASE_URL', 
+    'postgresql://postgres:1234@127.0.0.1:5432/scsdata'
+)
 
 db = SQLAlchemy(app)
 
@@ -30,7 +30,6 @@ class Usuario(db.Model, UserMixin):
     criado_em = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     ativo = db.Column(db.Boolean, default=True)
 
-    # Mantendo os seus relacionamentos aqui dentro
     produtos = db.relationship('Produto', backref='autor', lazy=True)
     clientes = db.relationship('Cliente', backref='vendedor', lazy=True)
 
@@ -38,7 +37,6 @@ class Usuario(db.Model, UserMixin):
     def id(self):
         return self.id_usuario
     
-    # Método necessário para o Flask-Login saber qual é o ID
     def get_id(self):
         return str(self.id_usuario)
 
@@ -75,20 +73,20 @@ class Venda(db.Model):
     __tablename__ = 'venda'
     id_venda = db.Column(db.Integer, primary_key=True)
     id_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=False)
-    id_produto = db.Column(db.Integer, db.ForeignKey('produto.id_produto'), nullable=False) # Ligação com o produto
+    id_produto = db.Column(db.Integer, db.ForeignKey('produto.id_produto'), nullable=False) 
     nome_cliente_venda = db.Column(db.String(100), nullable=False)
-    quantidade_vendida = db.Column(db.Integer, default=1) # Quantidade da venda
+    quantidade_vendida = db.Column(db.Integer, default=1)
     data_venda = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     valor_venda = db.Column(db.Float, default=0.0)
     desconto_total = db.Column(db.Float, default=0.0)
     valor_final = db.Column(db.Float, default=0.0)
     status = db.Column(db.String(20))
     
-    # Relacionamento para podermos exibir o nome do produto na lista de vendas
+
     produto = db.relationship('Produto', backref='vendas')
 
 class Compra(db.Model):
-    __tablename__ = 'compra' # É uma boa prática forçar o nome exato da tabela no banco
+    __tablename__ = 'compra'
     id_compra = db.Column(db.Integer, primary_key=True)
     data_compra = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     total_gasto = db.Column(db.Float)
@@ -124,19 +122,16 @@ def cadastro():
         email = request.form.get('email')
         senha_plana = request.form.get('senha')
         
-        # 1. Verifica se o e-mail já existe para não dar erro de duplicata
         usuario_existente = Usuario.query.filter_by(email=email).first()
         if usuario_existente:
             return "Este e-mail já está cadastrado. Tente fazer login."
 
-        # 2. Gera o hash da senha (segurança)
         hash_da_senha = generate_password_hash(senha_plana)
 
-        # 3. Cria o novo usuário com os campos da classe unificada
         novo_usuario = Usuario(
             nome=nome,
             email=email,
-            senha=hash_da_senha, # Campo 'senha' que definimos na classe
+            senha=hash_da_senha, 
             ativo=True
         )
 
@@ -157,7 +152,6 @@ def cadastro():
 def estoque():
     # Busca todos os produtos do banco de dados
     lista_produtos = Produto.query.filter_by(id_usuario=current_user.id).all()
-    # Envia a lista para a tela que tem o menu lateral e os cartões
     return render_template('estoque.html', produtos=lista_produtos)
 
 @app.route('/logout')
@@ -171,21 +165,18 @@ def logout():
 @app.route('/cadastrar_produto', methods=['GET', 'POST'])
 def cadastrar_produto():
     if request.method == 'POST':
-        # Pegando os dados do formulário
         nome = request.form.get('nome')
         codigo = request.form.get('codigo_mk')
         preco_venda = request.form.get('preco_venda')
         custo = request.form.get('custo')
         quantidade = request.form.get('quantidade')
         
-
-        # Criando o objeto do produto (id_usuario=1 assume que você já criou um usuário)
         novo_produto = Produto(
             nome=nome,
             codigo_mk=codigo,
             preco_venda_sugerido=float(preco_venda),
             custo_medio_atual=float(custo),
-            estoque_minimo=int(quantidade), # Usando estoque_minimo para fins ilustrativos agora
+            estoque_minimo=int(quantidade),
             id_usuario=current_user.id_usuario 
         )
 
@@ -221,12 +212,10 @@ def formulario_editar(id):
     produto = Produto.query.get_or_404(id)
     return render_template('formulario_editar.html', produto=produto)
 
-# 3. Rota para processar a atualização no banco
 @app.route('/atualizar/<int:id>', methods=['POST'])
 def atualizar_produto(id):
     produto = Produto.query.get_or_404(id)
     
-    # Atualizando os campos com o que veio do formulário
     produto.nome = request.form.get('nome')
     produto.codigo_mk = request.form.get('codigo_mk')
     produto.preco_venda_sugerido = float(request.form.get('preco_venda'))
@@ -235,7 +224,6 @@ def atualizar_produto(id):
     try:
         db.session.commit()
         print(f"Produto {id} atualizado!")
-        # Após atualizar, volta pro estoque
         return redirect(url_for('estoque'))
     except Exception as e:
         db.session.rollback()
@@ -244,43 +232,35 @@ def atualizar_produto(id):
 @app.route('/compras')
 @login_required
 def compras():
-    # Busca apenas os produtos do Catálogo Geral (onde id_usuario IS NULL)
     lista_produtos = Produto.query.filter(Produto.id_usuario == None).all()
     return render_template('compras.html', produtos=lista_produtos)
     
 @app.route('/cadastrar_compra', methods=['POST'])
 def cadastrar_compra():
-    # 1. Pegando os dados financeiros como Texto
     data_compra = request.form.get('data_compra')
     total_gasto_str = request.form.get('total_gasto')
     desconto_str = request.form.get('desconto')
     frete_str = request.form.get('frete')
-    
-    # 2. Pegando as LISTAS de produtos e quantidades
+
     ids_produtos = request.form.getlist('id_produto[]')
     quantidades = request.form.getlist('quantidade[]')
 
     try:
-        # 3. Tratando os valores financeiros de forma segura (Se vier vazio, vira 0)
         valor_total = float(total_gasto_str) if total_gasto_str else 0.0
         valor_desconto = float(desconto_str) if desconto_str else 0.0
-        valor_frete = int(frete_str) if frete_str else 0 # Mantive int() porque sua classe pede Integer
+        valor_frete = int(frete_str) if frete_str else 0 
         
-        # 4. Registrando a Compra Financeira (Agora DENTRO do try)
         nova_compra = Compra(
             total_gasto=valor_total,
             desconto=valor_desconto,
             frete=valor_frete,
             id_usuario=current_user.id_usuario
-            # Não precisamos passar data_compra, pois o banco gera sozinho com o default
         )
         db.session.add(nova_compra)
         
-        # 5. Laço de repetição para atualizar cada produto selecionado
         for id_prod, qtd in zip(ids_produtos, quantidades):
             if id_prod and qtd:
                 
-                # 1. Busca o produto selecionado lá no Catálogo Geral
                 produto_catalogo = Produto.query.get(int(id_prod))
                 
                 if produto_catalogo:
@@ -296,12 +276,12 @@ def cadastrar_compra():
                     else:
                         # Se ela NÃO tem, o sistema cria o registro no estoque DELA na hora!
                         novo_estoque = Produto(
-                            id_usuario=current_user.id_usuario, # Dono do estoque
+                            id_usuario=current_user.id_usuario,
                             codigo_mk=produto_catalogo.codigo_mk,
                             nome=produto_catalogo.nome,
                             preco_venda_sugerido=produto_catalogo.preco_venda_sugerido,
                             custo_medio_atual=produto_catalogo.custo_medio_atual,
-                            estoque_minimo=int(qtd), # Começa com a quantidade da compra
+                            estoque_minimo=int(qtd),
                             url_foto=produto_catalogo.url_foto,
                             tipo=produto_catalogo.tipo
                         )
@@ -339,7 +319,7 @@ def nova_venda():
         print(f"ID do Produto selecionado: {id_prod}")
         qtd_str = request.form.get('quantidade')
         if qtd_str is None or qtd_str == '':
-            qtd_vendida = 0  # Valor padrão se vier vazio
+            qtd_vendida = 0
         else:
             qtd_vendida = int(qtd_str)
         nome = request.form.get('nome_cliente')
@@ -367,13 +347,12 @@ def nova_venda():
         # 2. Baixar o Estoque do Produto
         produto = Produto.query.get(id_prod)
         if produto:
-            produto.estoque_minimo -= qtd_vendida # Subtrai do estoque atual
+            produto.estoque_minimo -= qtd_vendida
         
         db.session.add(venda_nova)
         db.session.commit()
         return redirect(url_for('vendas'))
         
-    # GET: Carrega a lista de produtos para o <select> do formulário
     produtos = Produto.query.filter_by(id_usuario=current_user.id).all()
     return render_template('nova_venda.html', produtos=produtos)
 
@@ -394,14 +373,11 @@ def pagar_venda(id):
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    # 1. CORREÇÃO: Salvar o resultado do query na variável 'soma_vendas'
     soma_vendas = db.session.query(func.sum(Venda.valor_final))\
                     .filter(Venda.id_usuario == current_user.id_usuario).scalar()
                     
-    # 2. CORREÇÃO: Usar a variável 'soma_vendas' que acabamos de criar
     total_vendas = soma_vendas if soma_vendas else 0.0
-    
-    # Soma as compras SÓ deste usuário (Aqui você tinha feito certinho!)
+
     soma_compras = db.session.query(func.sum(Compra.total_gasto))\
                     .filter(Compra.id_usuario == current_user.id_usuario).scalar()
     total_compras = soma_compras if soma_compras else 0.0
@@ -413,7 +389,6 @@ def dashboard():
                            total_compras=total_compras,
                            lucro=lucro)
 
-# --- COMANDO PARA CRIAR AS TABELAS ---
 if __name__ == '__main__':
     with app.app_context():
         print("Sincronizando modelos com o banco scsdata...")
