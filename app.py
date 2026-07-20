@@ -9,6 +9,8 @@ import os
 
 app = Flask(__name__)
 
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'scs-data-local')
+
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     'DATABASE_URL', 
     'postgresql://postgres:1234@127.0.0.1:5432/scsdata'
