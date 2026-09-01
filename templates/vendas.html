@@ -4,16 +4,12 @@
 
 {% block content %}
 <body>
-    <div class="header-banner"><h2>MARY KAY <span style="font-weight: 300; font-size: 0.8em;"></span></h2></div>
-    <div class="container">
-        <div class="container-vendas">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4>Registro de Vendas</h4>
-                <div>
-                    <a href="/nova_venda" class="btn btn-nova-venda shadow-sm">+ Registrar Venda</a>
-                    <a href="/estoque" class="ms-3 text-muted text-decoration-none">← Menu</a>
+        <div class="pb-5 mt-4">
+            <h2 class="text-dark mb-4 fw-bold">Registrar Nova Venda</h2>
+                <div class="card-saas">
+                    <form method="POST" action="/vendas">
                 </div>
-            </div>
+        </div>
             <table class="table">
                 <thead>
                     <tr>
@@ -47,7 +43,7 @@
                 </tbody>
             </table>
         </div>
-    </div>
+    
 </body>
 {% endblock %}
 </html>

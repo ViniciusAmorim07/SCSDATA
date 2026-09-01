@@ -389,11 +389,20 @@ def dashboard():
     total_compras = soma_compras if soma_compras else 0.0
     
     lucro = total_vendas - total_compras
+
+    lista_meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul']
+    lista_vendas = [120, 350, 200, 450, 300, 500, 600]
+    lista_compras = [100, 200, 150, 300, 200, 350, 400]
+    lista_lucros = [20, 150, 50, 150, 100, 150, 200]
     
     return render_template('dashboard.html', 
-                           total_vendas=total_vendas,
-                           total_compras=total_compras,
-                           lucro=lucro)
+                           total_vendas=total_vendas, 
+                           total_compras=total_compras, 
+                           lucro=lucro,
+                           meses=lista_meses,
+                           dados_vendas=lista_vendas,
+                           dados_compras=lista_compras,
+                           dados_lucro=lista_lucros)
 
 with app.app_context():
     print("Sincronizando modelos com o banco scsdata...")

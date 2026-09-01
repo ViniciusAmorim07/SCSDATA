@@ -1,92 +1,138 @@
 {% extends "base.html" %}
-
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
+<style>
+    .card-saas {
+        background-color: #ffffff;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        padding: 1.5rem;
+    }
+    .card-saas-dark {
+        background-color: #1a2238;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+        color: white;
+    }
+    .texto-lucro-positivo { color: #50b887 !important; }
+    .texto-lucro-negativo { color: #e25a5a !important; }
+</style>
 
-<div class="pb-5 mt-4">        
-            <div class="mb-4">
-                <h2 class="text-dark border-bottom pb-2">Painel de Resultados</h2>
-            </div>
+<div class="pb-5 mt-4">
+    <div class="mb-4">
+        <h2 class="text-dark fw-bold mb-1">Dashboard</h2>
+        <p class="text-muted small">Resumo do desempenho de vendas e estoque.</p>
+    </div>
 
-            <div class="row mb-5 g-3">
-                <div class="col-md-4">
-                    <div class="card card-financeiro bg-primary p-4 shadow-sm">
-                        <small class="text-white-50 fw-bold text-uppercase">Total de Vendas</small>
-                        <h2 class="mt-2 fw-bold">R$ {{ "%.2f"|format(total_vendas) }}</h2>
-                    </div>
+    <div class="row g-3 mb-4">
+        
+        <!-- Cartão 1: Vendas -->
+        <div class="col-12 col-md-6">
+            <div class="card-saas-dark h-100 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <small class="text-white-50 fw-bold text-uppercase">Total de Vendas</small>
                 </div>
-                <div class="col-md-4">
-                    <div class="card card-financeiro bg-danger p-4 shadow-sm">
-                        <small class="text-white-50 fw-bold text-uppercase">Total de Compras</small>
-                        <h2 class="mt-2 fw-bold">R$ {{ "%.2f"|format(total_compras) }}</h2>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card card-financeiro {% if lucro >= 0 %}bg-success{% else %}bg-warning{% endif %} p-4 shadow-sm">
-                        <small class="text-white-50 fw-bold text-uppercase">Lucro Líquido</small>
-                        <h2 class="mt-2 fw-bold">R$ {{ "%.2f"|format(lucro) }}</h2>
-                    </div>
+                <h2 class="fw-bold mb-0">R$ {{ "%.2f"|format(total_vendas) }}</h2>
+                <div style="flex-grow: 1; position: relative; height: 130px; margin-top: 10px;">
+                    <canvas id="chartVendas"></canvas>
                 </div>
             </div>
+        </div>
+        
+        <!-- Cartão 2: Compras-->
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="card-saas h-100 d-flex flex-column">
+                <small class="text-muted fw-bold text-uppercase mb-2">Total de Compras</small>
+                <h4 class="fw-bold text-dark mb-0">R$ {{ "%.2f"|format(total_compras) }}</h4>
+                <div style="flex-grow: 1; position: relative; height: 100px; margin-top: 15px;">
+                    <canvas id="chartCompras"></canvas>
+                </div>
+            </div>
+        </div>
 
-            <div class="card shadow-sm border-0 p-4">
-                <h5 class="text-secondary mb-4 text-center">Comparativo Financeiro Atual</h5>
-                <div style="position: relative; height:300px; width:100%">
-                    <canvas id="graficoLucro"></canvas>
+        <!-- Cartão 3: Lucro-->
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="card-saas h-100 d-flex flex-column">
+                <small class="text-muted fw-bold text-uppercase mb-2">Lucro Líquido</small>
+                <h4 class="fw-bold mb-0 {% if lucro >= 0 %}texto-lucro-positivo{% else %}texto-lucro-negativo{% endif %}">
+                    R$ {{ "%.2f"|format(lucro) }}
+                </h4>
+                <div style="flex-grow: 1; position: relative; height: 100px; margin-top: 15px;">
+                    <canvas id="chartLucro"></canvas>
                 </div>
             </div>
+        </div>
+
+    </div>
 </div>
-
+<div id="dadosGraficos" 
+     style="display: none;"
+     data-meses="{{ meses | tojson | forceescape }}"
+     data-vendas="{{ dados_vendas | tojson | forceescape }}"
+     data-compras="{{ dados_compras | tojson | forceescape }}"
+     data-lucro="{{ dados_lucro | tojson | forceescape }}">
+</div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-    const valorVendas = Number("{{ total_vendas }}");
-    const valorCompras = Number("{{ total_compras }}");
-    const valorLucro = Number("{{ lucro }}");
+    Chart.defaults.plugins.legend.display = false;
+    Chart.defaults.scale.display = false; 
+    Chart.defaults.elements.point.radius = 0; 
+    Chart.defaults.maintainAspectRatio = false;
 
-    // 2. Captura o elemento do HTML
-    const ctx = document.getElementById('graficoLucro').getContext('2d');
     
-    // 3. Renderiza o gráfico
-    const graficoLucro = new Chart(ctx, {
+    const containerDados = document.getElementById('dadosGraficos');
+    const valoresVendas = JSON.parse(containerDados.dataset.vendas);
+    const valoresCompras = JSON.parse(containerDados.dataset.compras);
+    const valoresLucro = JSON.parse(containerDados.dataset.lucro);  
+
+    new Chart(ctxVendas, {
+        type: 'line',
+        data: {
+            labels: meses,
+            datasets: [{
+                data: valoresVendas, 
+                borderColor: '#d4a5a5', 
+                backgroundColor: gradientVendas,
+                borderWidth: 3,
+                tension: 0.4, 
+                fill: true
+            }]
+        }
+    });
+
+    /* GRÁFICO DE COMPRAS */
+    const ctxCompras = document.getElementById('chartCompras').getContext('2d');
+    new Chart(ctxCompras, {
+        type: 'line',
+        data: {
+            labels: meses, 
+            datasets: [{
+                data: valoresCompras, 
+                borderColor: '#d4a5a5',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: false
+            }]
+        }
+    });
+
+    /* GRÁFICO DE LUCRO */
+    const ctxLucro = document.getElementById('chartLucro').getContext('2d');
+    new Chart(ctxLucro, {
         type: 'bar',
         data: {
-            labels: ['Vendas (Faturamento)', 'Compras (Investimento)', 'Lucro Real'],
+            labels: meses, 
             datasets: [{
-                label: 'Valores em R$',
-                // Agora passamos as variáveis limpas para o gráfico
-                data: [valorVendas, valorCompras, valorLucro],
-                backgroundColor: [
-                    'rgba(13, 110, 253, 0.7)',
-                    'rgba(220, 53, 69, 0.7)',
-                    'rgba(25, 135, 84, 0.7)'
-                ],
-                borderColor: [
-                    'rgb(13, 110, 253)',
-                    'rgb(220, 53, 69)',
-                    'rgb(25, 135, 84)'
-                ],
-                borderWidth: 1
+                data: valoresLucro, 
+                backgroundColor: ['#1a2238', '#d4a5a5', '#1a2238', '#d4a5a5', '#1a2238', '#d4a5a5'],
+                borderRadius: 4, 
+                barThickness: 8  
             }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                }
-            }
         }
     });
 </script>
 {% endblock %}
-</html>
