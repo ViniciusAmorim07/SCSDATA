@@ -76,25 +76,35 @@
      data-compras="{{ dados_compras | tojson | forceescape }}"
      data-lucro="{{ dados_lucro | tojson | forceescape }}">
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    // Configurações globais dos gráficos
     Chart.defaults.plugins.legend.display = false;
     Chart.defaults.scale.display = false; 
     Chart.defaults.elements.point.radius = 0; 
     Chart.defaults.maintainAspectRatio = false;
 
-    
+    // 1. Lendo os dados da div invisível
     const containerDados = document.getElementById('dadosGraficos');
+    
+    const meses = JSON.parse(containerDados.dataset.meses);
     const valoresVendas = JSON.parse(containerDados.dataset.vendas);
     const valoresCompras = JSON.parse(containerDados.dataset.compras);
-    const valoresLucro = JSON.parse(containerDados.dataset.lucro);  
+    const valoresLucro = JSON.parse(containerDados.dataset.lucro);
+
+    // 2. GRÁFICO DE VENDAS
+    const ctxVendas = document.getElementById('chartVendas').getContext('2d');
+    let gradientVendas = ctxVendas.createLinearGradient(0, 0, 0, 150);
+    gradientVendas.addColorStop(0, 'rgba(212, 165, 165, 0.5)'); 
+    gradientVendas.addColorStop(1, 'rgba(212, 165, 165, 0)');   
 
     new Chart(ctxVendas, {
         type: 'line',
         data: {
             labels: meses,
             datasets: [{
-                data: valoresVendas, 
+                data: valoresVendas,
                 borderColor: '#d4a5a5', 
                 backgroundColor: gradientVendas,
                 borderWidth: 3,
@@ -104,14 +114,14 @@
         }
     });
 
-    /* GRÁFICO DE COMPRAS */
+    // 3. GRÁFICO DE COMPRAS
     const ctxCompras = document.getElementById('chartCompras').getContext('2d');
     new Chart(ctxCompras, {
         type: 'line',
         data: {
-            labels: meses, 
+            labels: meses,
             datasets: [{
-                data: valoresCompras, 
+                data: valoresCompras,
                 borderColor: '#d4a5a5',
                 borderWidth: 2,
                 tension: 0.4,
@@ -120,14 +130,14 @@
         }
     });
 
-    /* GRÁFICO DE LUCRO */
+    // 4. GRÁFICO DE LUCRO
     const ctxLucro = document.getElementById('chartLucro').getContext('2d');
     new Chart(ctxLucro, {
         type: 'bar',
         data: {
-            labels: meses, 
+            labels: meses,
             datasets: [{
-                data: valoresLucro, 
+                data: valoresLucro,
                 backgroundColor: ['#1a2238', '#d4a5a5', '#1a2238', '#d4a5a5', '#1a2238', '#d4a5a5'],
                 borderRadius: 4, 
                 barThickness: 8  

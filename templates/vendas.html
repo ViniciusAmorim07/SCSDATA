@@ -1,49 +1,117 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Vendas{% endblock %}
 
 {% block content %}
-<body>
-        <div class="pb-5 mt-4">
-            <h2 class="text-dark mb-4 fw-bold">Registrar Nova Venda</h2>
-                <div class="card-saas">
-                    <form method="POST" action="/vendas">
-                </div>
+<div class="pb-5 mt-4">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 border-bottom pb-3">
+        <div class="mb-3 mb-md-0">
+            <h1 class="h3 mb-1 text-dark fw-bold">Registro de Vendas</h1>
+            <p class="text-muted mb-0">Registre e acompanhe as vendas para suas clientes.</p>
         </div>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Produto</th> <th>Qtd</th>     <th>Cliente</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for v in vendas %}
-                    <tr {% if v.status == 'Pendente' %} style="background-color: #fffdf5;" {% endif %}>
-                        <td>#{{ v.id_venda }}</td>
-                        <td>{{ v.produto.nome }}</td> <td>{{ v.quantidade_vendida }}</td>
-                        <td>{{ v.nome_cliente_venda }}</td>
-                        <td>R$ {{ "%.2f"|format(v.valor_final) }}</td>
-                        <td>
-                            {% if v.status == 'Pendente' %}
-                                <div class="d-flex align-items-center">
-                                    <span class="badge bg-warning text-dark me-2">Pendente</span>
-                                    <form action="{{ url_for('pagar_venda', id=v.id_venda) }}" method="POST">
-                                        <button type="submit" class="btn btn-sm btn-outline-success" style="font-size: 0.7rem;">Baixar Pagamento</button>
-                                    </form>
-                                </div>
-                            {% else %}
-                                <span class="badge bg-success">Pago</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div>
+
+            <button type="button" class="btn btn-primary shadow-sm w-100" data-bs-toggle="modal" data-bs-target="#modalNovaVenda">
+                <i class="bi bi-plus-circle me-1"></i> Nova Venda
+            </button>
         </div>
-    
-</body>
+    </div>
+    <div class="card-saas table-responsive">
+        <table class="table table-hover table-borderless align-middle mb-0">
+            <thead class="table-light text-secondary">
+                <tr>
+                    <th>ID</th>
+                    <th>Produto</th>
+                    <th>Qtd</th>
+                    <th>Cliente</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in vendas %}
+                <tr {% if v.status == 'Pendente' %} style="background-color: #fffdf5;" {% endif %}>
+                    <td class="text-muted fw-bold">#{{ v.id_venda }}</td>
+                    <td><strong>{{ v.produto.nome }}</strong></td> 
+                    <td>{{ v.quantidade_vendida }}</td>
+                    <td>{{ v.nome_cliente_venda }}</td>
+                    <td class="fw-bold">R$ {{ "%.2f"|format(v.valor_final) }}</td>
+                    <td>
+                        {% if v.status == 'Pendente' %}
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-warning text-dark me-2 rounded-pill px-3">Pendente</span>
+                                <form action="{{ url_for('pagar_venda', id=v.id_venda) }}" method="POST" class="m-0">
+                                    <button type="submit" class="btn btn-sm btn-outline-success rounded-pill" style="font-size: 0.75rem;">Baixar</button>
+                                </form>
+                            </div>
+                        {% else %}
+                            <span class="badge bg-success rounded-pill px-3">Pago</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">Nenhuma venda registrada ainda.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<div class="modal fade" id="modalNovaVenda" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 12px; border: none;">
+            
+            <div class="modal-header" style="background-color: var(--navy-blue); color: white; border-top-left-radius: 12px; border-top-right-radius: 12px;">
+                <h5 class="modal-title fw-bold">Registrar Nova Venda</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body p-4">
+                <form method="POST" action="/vendas">
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold text-uppercase">Produto Vendido</label>
+                        <select name="id_produto" class="form-select" required>
+                            <option value="">Selecione um produto...</option>
+                            {% for p in produtos %}
+                                <option value="{{ p.id_produto }}">{{ p.nome }} - R$ {{ "%.2f"|format(p.preco_venda_sugerido) }} (Em estoque: {{ p.quantidade }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label text-muted small fw-bold text-uppercase">Quantidade</label>
+                            <input type="number" name="quantidade_vendida" class="form-control" value="1" min="1" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label text-muted small fw-bold text-uppercase">Desconto (R$)</label>
+                            <input type="number" step="0.01" name="desconto_aplicado" class="form-control" value="0.00">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold text-uppercase">Nome da Cliente</label>
+                        <input type="text" name="nome_cliente_venda" class="form-control" placeholder="Ex: Maria Silva" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold text-uppercase">Status do Pagamento</label>
+                        <select name="status" class="form-select" required>
+                            <option value="Pago">Pago</option>
+                            <option value="Pendente">Pendente</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2">Confirmar Venda</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
-</html>
