@@ -1,83 +1,93 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Nova Venda{% endblock %}
 
 {% block content %}
-<body>
-    <div class="pb-5 mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
+<div class="pb-5 mt-4">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div class="mb-3 mb-md-0">
             <h1 class="h3 mb-1 text-dark fw-bold">Nova Venda</h1>
-            <p class="text-muted mb-0">Adicione os produtos e seus valores.</p>
+            <p class="text-muted mb-0">Adicione os produtos e seus respectivos valores.</p>
         </div>
-        <a href="/estoque" class="btn btn-outline-secondary rounded-pill px-3">
-            <i class="bi bi-arrow-left me-1"></i> Voltar ao Estoque
+        <a href="/vendas" class="btn btn-outline-secondary rounded-pill px-3">
+            <i class="bi bi-arrow-left me-1"></i> Voltar para Vendas
         </a>
     </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
             
-            <form action="/nova_venda" method="POST">
-                
-                <div class="mb-3 text-start">
-                    <label class="form-label">Produto Vendido</label>
-                    <select name="id_produto" class="form-select" required>
-                        <option value="">Selecione um produto...</option>
-                        {% for p in produtos %}
-                        <option value="{{ p.id_produto }}">{{ p.nome }} (Estoque: {{ p.estoque_minimo }})</option>
-                        {% endfor %}
-                    </select>
-                </div>
+            <div class="card-saas p-4">
+                <h4 class="h5 text-dark fw-bold mb-4 border-bottom pb-2">Registrar Venda</h4>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3 text-start">
-                        <label class="form-label">Quantidade</label>
-                        <input type="number" name="quantidade" class="form-control" value="1" min="1" required>
+                <form action="/nova_venda" method="POST">
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold text-uppercase mb-1">Produto Vendido</label>
+                        <select name="id_produto" class="form-select" required>
+                            <option value="">Selecione um produto...</option>
+                            {% for p in produtos %}
+                            <option value="{{ p.id_produto }}">{{ p.nome }} (Estoque: {{ p.estoque_minimo }})</option>
+                            {% endfor %}
+                        </select>
                     </div>
-                    <div class="col-md-6 mb-3 text-start">
-                        <label class="form-label">Nome do Cliente</label>
-                        <input type="text" name="nome_cliente" class="form-control" placeholder="Cliente" required>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-bold text-uppercase mb-1">Quantidade</label>
+                            <input type="number" name="quantidade" class="form-control" value="1" min="1" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-bold text-uppercase mb-1">Nome do Cliente</label>
+                            <input type="text" name="nome_cliente" class="form-control" placeholder="Ex: Maria Silva" required>
+                        </div>
                     </div>
-                </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3 text-start">
-                        <label class="form-label">Valor da Venda (R$)</label>
-                        <input type="number" step="0.01" id="v_venda" name="valor_venda" class="form-control" value="0.00" oninput="calcularTotal()">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-bold text-uppercase mb-1">Valor da Venda (R$)</label>
+                            <input type="number" step="0.01" id="v_venda" name="valor_venda" class="form-control" value="0.00" oninput="calcularTotal()">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-bold text-uppercase mb-1">Desconto (R$)</label>
+                            <input type="number" step="0.01" id="v_desconto" name="desconto" class="form-control" value="0.00" oninput="calcularTotal()">
+                        </div>
                     </div>
-                    <div class="col-md-6 mb-3 text-start">
-                        <label class="form-label">Desconto (R$)</label>
-                        <input type="number" step="0.01" id="v_desconto" name="desconto" class="form-control" value="0.00" oninput="calcularTotal()">
+
+                    <div class="mb-4 p-3 bg-light rounded-3 text-center border">
+                        <span class="text-muted small fw-bold text-uppercase d-block mb-1">Valor Total Final</span>
+                        <h4 class="m-0 text-dark fw-bold">R$ <span id="v_total">0.00</span></h4>
                     </div>
-                </div>
 
-                <div class="mb-3 p-3 bg-light rounded text-center">
-                    <h5 class="m-0">Total: R$ <span id="v_total">0.00</span></h5>
-                </div>
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold text-uppercase mb-1">Status do Pagamento</label>
+                        <select name="status" class="form-select">
+                            <option value="Pendente">Pendente</option>
+                            <option value="Pago">Pago</option>
+                        </select>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
+                            <i class="bi bi-check-circle me-1"></i> Confirmar Venda
+                        </button>
+                        <a href="/vendas" class="btn btn-link text-muted text-decoration-none text-center small mt-1">Cancelar</a>
+                    </div>
 
-                <div class="mb-3 text-start">
-                    <label class="form-label">Status do Pagamento</label>
-                    <select name="status" class="form-select">
-                        <option value="Pendente">Pendente</option>
-                        <option value="Pago">Pago</option>
-                    </select>
-                </div>
-                
-                <button type="submit" class="btn btn-finalizar mt-3">Confirmar Venda</button>
-                <div class="text-center mt-3">
-                    <a href="/vendas" class="text-muted text-decoration-none">Voltar</a>
-                </div>
-
-            </form>
+                </form>
             </div>
+
+        </div>
     </div>
 
-    <script>
-        function calcularTotal() {
-            const venda = parseFloat(document.getElementById('v_venda').value) || 0;
-            const desconto = parseFloat(document.getElementById('v_desconto').value) || 0;
-            const total = venda - desconto;
-            document.getElementById('v_total').innerText = total.toFixed(2);
-        }
-    </script>
-</body>
+</div>
+
+<script>
+    function calcularTotal() {
+        const venda = parseFloat(document.getElementById('v_venda').value) || 0;
+        const desconto = parseFloat(document.getElementById('v_desconto').value) || 0;
+        const total = venda - desconto;
+        document.getElementById('v_total').innerText = total.toFixed(2);
+    }
+</script>
 {% endblock %}
-</html>

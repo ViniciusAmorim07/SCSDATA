@@ -5,36 +5,66 @@
 {% block content %}
 <div class="pb-5 mt-4">
 
+    <!-- CABEÇALHO DA PÁGINA -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
         <div class="mb-3 mb-md-0">
-            <h1 class="h3 mb-1 text-dark fw-bold">Editar Produtos</h1>
-            <p class="text-muted mb-0">Selecione o produto que deseja alterar as informações.</p>
+            <h1 class="h3 mb-1 text-dark fw-bold">Editar Produto</h1>
+            <p class="text-muted mb-0">Altere os dados necessários do produto selecionado.</p>
         </div>
         <a href="/estoque" class="btn btn-outline-secondary rounded-pill px-3">
             <i class="bi bi-arrow-left me-1"></i> Voltar ao Estoque
         </a>
     </div>
-    <div class="container">
-        <div class="form-container">
-            <h4 class="mb-4">Alterar Informações</h4>
-            <form action="{{ url_for('atualizar_produto', id=produto.id_produto) }}" method="POST">
-                <label>Nome do Produto</label>
-                <input type="text" name="nome" class="form-control" value="{{ produto.nome }}" required>
+
+    <!-- CENTRALIZAÇÃO DO FORMULÁRIO DENTRO DO CARD SAAS -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            
+            <div class="card-saas p-4">
+                <h4 class="h5 text-dark fw-bold mb-4 border-bottom pb-2">Alterar Informações</h4>
                 
-                <label>Código MK</label>
-                <input type="text" name="codigo_mk" class="form-control" value="{{ produto.codigo_mk }}" required>
-                
-                <label>Preço de Venda (R$)</label>
-                <input type="number" step="0.01" name="preco_venda" class="form-control" value="{{ produto.preco_venda_sugerido }}" required>
-                
-                <label>Quantidade em Estoque</label>
-                <input type="number" name="quantidade" class="form-control" value="{{ produto.estoque_minimo }}" required>
-                
-                <button type="submit" class="btn btn-salvar mt-3">Salvar Alterações</button>
-                <div class="text-center mt-3"><a href="/estoque" class="text-muted">Cancelar</a></div>
-            </form>
+                <form action="{{ url_for('atualizar_produto', id=produto.id_produto) }}" method="POST">
+                    
+                    <!-- Nome do Produto -->
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold text-uppercase mb-1">Nome do Produto</label>
+                        <input type="text" name="nome" class="form-control" value="{{ produto.nome }}" required>
+                    </div>
+
+                    <!-- Código MK -->
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold text-uppercase mb-1">Código MK</label>
+                        <input type="text" name="codigo_mk" class="form-control" value="{{ produto.codigo_mk }}" required>
+                    </div>
+
+                    <!-- Preço de Venda -->
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold text-uppercase mb-1">Preço de Venda (R$)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted">R$</span>
+                            <input type="number" step="0.01" name="preco_venda" class="form-control" value="{{ produto.preco_venda_sugerido }}" required>
+                        </div>
+                    </div>
+
+                    <!-- Quantidade em Estoque -->
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold text-uppercase mb-1">Quantidade em Estoque</label>
+                        <input type="number" name="quantidade" class="form-control" value="{{ produto.estoque_minimo }}" required>
+                    </div>
+
+                    <!-- Botão Salvar (Rosa Gold) -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
+                            <i class="bi bi-check-circle me-1"></i> Salvar Alterações
+                        </button>
+                        <a href="/estoque" class="btn btn-link text-muted text-decoration-none text-center small mt-1">Cancelar</a>
+                    </div>
+
+                </form>
+            </div>
+
         </div>
     </div>
+
 </div>    
 {% endblock %}
-</html>
