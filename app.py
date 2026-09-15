@@ -121,7 +121,7 @@ def login():
 
     return render_template('login.html')
 
-@app.route('/cadastro', methods=['GET', 'POST'])
+@app.route('/cadastrar_usuario', methods=['GET', 'POST'])
 def cadastro():
     if request.method == 'POST':
         nome = request.form.get('nome')
