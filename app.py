@@ -235,7 +235,7 @@ def atualizar_produto(id):
         db.session.rollback()
         return f"Erro ao atualizar: {e}"
     
-@app.route('/compras')
+@app.route('/compras', methods=['GET', 'POST'])
 @login_required
 def compras():
     lista_produtos = Produto.query.filter(Produto.id_usuario == None).all()

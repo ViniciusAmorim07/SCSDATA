@@ -3,93 +3,102 @@
 {% block title %}Compras{% endblock %}
 
 {% block content %}
-
 <div class="pb-5 mt-4">
-        <h2 class="text-dark mb-4 fw-bold">Registrar Nova Venda</h2>
 
-            <div class="card-saas">
-                <form method="POST" action="/vendas">
-                    <h5 class="mb-4 text-primary">Dados da Nota / Pedido</h5>
-                    <div class="row mb-3 g-3">
-                        <div class="col-md-3">
-                            <label class="form-label fw-bold">Data da Compra</label>
-                            <input type="date" class="form-control" name="data_compra" required>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label fw-bold">Total Gasto (R$)</label>
-                            <input type="number" step="0.01" class="form-control" name="total_gasto" placeholder="0.00" required>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label fw-bold">Desconto (%)</label>
-                            <input type="number" class="form-control" name="desconto" placeholder="0">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label fw-bold">Frete (R$)</label>
-                            <input type="number" step="0.01" class="form-control" name="frete" placeholder="0.00">
-                        </div>
+    <!-- CABEÇALHO DA PÁGINA -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div class="mb-3 mb-md-0">
+            <h1 class="h3 mb-1 text-dark fw-bold">Registrar Nova Compra</h1>
+            <p class="text-muted mb-0">Dê entrada de produtos no seu estoque e registre a nota/pedido.</p>
+        </div>
+        <a href="/historico_compras" class="btn btn-outline-secondary rounded-pill px-3">
+            <i class="bi bi-journal-text me-1"></i> Histórico de Compras
+        </a>
+    </div>
+
+    <div class="card-saas p-4">
+        <form method="POST" action="/compras">
+            
+            <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">1. Dados da Nota / Pedido</h5>
+            <div class="row mb-4 g-3">
+                <div class="col-12 col-md-3">
+                    <label class="form-label text-muted small fw-bold text-uppercase">Data da Compra</label>
+                    <input type="date" class="form-control" name="data_compra" required>
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label text-muted small fw-bold text-uppercase">Total Gasto (R$)</label>
+                    <input type="number" step="0.01" class="form-control" name="total_gasto" placeholder="0.00" required>
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label text-muted small fw-bold text-uppercase">Desconto (%)</label>
+                    <input type="number" class="form-control" name="desconto" placeholder="0">
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label text-muted small fw-bold text-uppercase">Frete (R$)</label>
+                    <input type="number" step="0.01" class="form-control" name="frete" placeholder="0.00">
+                </div>
+            </div>
+
+            <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">2. Abastecer Produtos</h5>
+            
+            <div id="lista-produtos">
+                <div class="row mb-3 g-3 align-items-end linha-produto">
+                    <div class="col-12 col-md-8">
+                        <label class="form-label text-muted small fw-bold text-uppercase">Selecione o Produto</label>
+                        <select class="form-select" name="id_produto[]" required>
+                            <option value="" selected disabled>Escolha o produto que chegou...</option>
+                            {% for produto in produtos %}
+                                <option value="{{ produto.id_produto if produto.id_produto else produto.id }}">
+                                    {{ produto.codigo_mk }} - {{ produto.nome }} {% if produto.cor %} ({{ produto.cor }}) {% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
                     </div>
-
-                    <hr class="my-4 text-muted">
-
-                    <h5 class="mb-4 text-primary">Abastecer Produtos</h5>
-                    <div id="lista-produtos">
-                        <div class="row mb-3 g-3 align-items-end linha-produto">
-                            <div class="col-md-8">
-                                <label class="form-label fw-bold">Selecione o Produto</label>
-                                <select class="form-select" name="id_produto[]" required>
-                                    <option value="" selected disabled>Escolha o produto que chegou...</option>
-                                    {% for produto in produtos %}
-                                        <option value="{{ produto.id_produto if produto.id_produto else produto.id }}">
-                                                {{ produto.codigo_mk }} - {{ produto.nome }} {% if produto.cor %} ({{ produto.cor }}) {% endif %}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label fw-bold">Quantidade</label>
-                                <input type="number" class="form-control" name="quantidade[]" min="1" required>
-                            </div>
-                            <div class="col-md-1 text-end">
-                                <button type="button" class="btn btn-outline-danger w-100 btn-remover" style="display: none;" onclick="removerLinha(this)">X</button>
-                            </div>
-                        </div>
+                    <div class="col-8 col-md-3">
+                        <label class="form-label text-muted small fw-bold text-uppercase">Quantidade</label>
+                        <input type="number" class="form-control" name="quantidade[]" min="1" placeholder="Ex: 5" required>
                     </div>
-
-                    <div class="mb-4">
-                        <button type="button" class="btn btn-sm btn-outline-primary fw-bold" onclick="adicionarLinha()">+ Adicionar outro produto</button>
+                    <div class="col-4 col-md-1 text-end">
+                        <button type="button" class="btn btn-outline-danger w-100 btn-remover" style="display: none;" onclick="removerLinha(this)">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
                     </div>
+                </div>
+            </div>
 
-                    <div class="text-end mt-4">
-                        <button type="submit" class="btn btn-success px-5 py-2 fw-bold">Dar Entrada no Estoque</button>
-                    </div>
+            <div class="mb-4">
+                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" onclick="adicionarLinha()">
+                    <i class="bi bi-plus-circle me-1"></i> Adicionar outro produto
+                </button>
+            </div>
 
-                    <script>
-                        function adicionarLinha() {
-                            const container = document.getElementById('lista-produtos');
-                            const primeiraLinha = document.querySelector('.linha-produto');
-                            
-                            // Clona a estrutura do HTML da primeira linha
-                            const novaLinha = primeiraLinha.cloneNode(true);
-                            
-                            // Limpa o valor da quantidade que foi copiada
-                            novaLinha.querySelector('input[type="number"]').value = '';
-                            
-                            // Mostra o botão de 'X' (remover) para as linhas clonadas
-                            novaLinha.querySelector('.btn-remover').style.display = 'block';
-                            
-                            // Adiciona a nova linha na tela
-                            container.appendChild(novaLinha);
-                        }
+            <div class="border-top pt-3 text-end">
+                <button type="submit" class="btn btn-primary px-5 py-2 fw-bold shadow-sm">
+                    <i class="bi bi-box-seam me-1"></i> Dar Entrada no Estoque
+                </button>
+            </div>
 
-                        function removerLinha(botao) {
-                            // Remove a linha (o elemento pai do pai do botão)
-                            botao.closest('.linha-produto').remove();
-                        }
-                    </script>
-
-                </form>
-            </div>        
+        </form>
+    </div>        
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function adicionarLinha() {
+        const container = document.getElementById('lista-produtos');
+        const primeiraLinha = document.querySelector('.linha-produto');
+        
+        const novaLinha = primeiraLinha.cloneNode(true);
+
+        novaLinha.querySelector('select').selectedIndex = 0;
+        novaLinha.querySelector('input[type="number"]').value = '';
+        
+        novaLinha.querySelector('.btn-remover').style.display = 'block';
+        
+        container.appendChild(novaLinha);
+    }
+
+    function removerLinha(botao) {
+        botao.closest('.linha-produto').remove();
+    }
+</script>
 {% endblock %}
-</html>
